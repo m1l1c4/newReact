@@ -32,9 +32,7 @@ import "../../../node_modules/react-notifications/lib/Notifications.js"
 
 const localizer = momentLocalizer(moment)
 
-const url = 'https://clinical-center-tim31.herokuapp.com/'
-//const url = 'http://localhost:8099/'
-
+ 
 class AdministratorPage extends Component {
   constructor(props) {
     super(props);
@@ -139,9 +137,8 @@ class AdministratorPage extends Component {
       sort5: true,
       sort6: true,
       sort7: true,
-      ulogovani: "",
     };
-
+ 
     this.updateOneAdministrator = this.updateOneAdministrator.bind(this);
     this.setujAdmina = this.setujAdmina.bind(this);
     this.createAppointment = this.createAppointment.bind(this);
@@ -199,19 +196,17 @@ class AdministratorPage extends Component {
         };        
         axios({
           method: 'post',
-          url: url + 'clinic/changeRoom',
+          url: 'http://localhost:8099/clinic/changeRoom',
           data: data,
           headers: { "Authorization": AuthStr }  
         }).then((response) => {
             this.setState({showEditRoom: false});
             this.setState({nameTextP:""})
-            if(response.status === "ALREADY_REPORTED")
-            NotificationManager.info('Ne moze se mijenjati!', 'Info!', 3000);
-            else  NotificationManager.success('Uspjesna izmjena sale!', 'Uspjesno!', 3000);
+            NotificationManager.success('Uspjesna izmjena sale!', 'Uspjesno!', 3000);
  
               axios({
                 method: 'get',
-                url: url + 'clinic/getRooms',
+                url: 'http://localhost:8099/clinic/getRooms',
                 headers: { "Authorization": AuthStr }  
               }).then((response) => {
                 console.log(response);
@@ -224,8 +219,9 @@ class AdministratorPage extends Component {
  
             }, (error) => {
               console.log(error);
-             
-            });
+              if(error.status === "ALREADY_REPORTED")
+              alert("Ne moze se mijenjati, nije slobodna!")
+        });
    
     }
   }
@@ -266,7 +262,7 @@ class AdministratorPage extends Component {
         };        
         axios({
           method: 'post',
-          url: url + 'clinic/addRoom',
+          url: 'http://localhost:8099/clinic/addRoom',
           data: data,
           headers: { "Authorization": AuthStr }  
         }).then((response) => {
@@ -281,7 +277,7 @@ class AdministratorPage extends Component {
           }
               axios({
                 method: 'get',
-                url: url + 'clinic/getRooms',
+                url: 'http://localhost:8099/clinic/getRooms',
                 headers: { "Authorization": AuthStr }  
               }).then((response) => {
                 console.log(response);
@@ -318,7 +314,7 @@ cijenaTipaValidacija(e) {
     let AuthStr = 'Bearer '.concat(token);
     axios({
       method: 'get',
-      url: url + 'clinic/getAllTypes',
+      url: 'http://localhost:8099/clinic/getAllTypes',
       headers: { "Authorization": AuthStr }  
     }).then((response) => {
       console.log(response);
@@ -336,7 +332,7 @@ cijenaTipaValidacija(e) {
     let AuthStr = 'Bearer '.concat(token);
     axios({
       method: 'get',
-      url: url + 'clinic/getRooms',
+      url: 'http://localhost:8099/clinic/getRooms',
       headers: { "Authorization": AuthStr }  
     }).then((response) => {
       console.log(response);
@@ -435,6 +431,34 @@ cijenaTipaValidacija(e) {
   traziPoBroju = () => {
         const items = this.state.dobavljeneSale.filter(room => room.number === parseInt(this.state.brojSaleFiltriranje));
         this.setState({ dobavljeneSale: items });
+        /*
+        let AuthStr = 'Bearer '.concat(localStorage.getItem("ulogovan"));
+        let pom = [];
+        pom.push(this.state.brojSaleFiltriranje);
+     
+        axios({
+          method: 'post',
+          url: 'http://localhost:8099/clinic/filterRooms' ,
+          headers: { "Authorization": AuthStr } ,
+          data:pom,
+          ContentType: 'application/json',
+        }).then((response)=>{      
+          if(response.status === 208)
+          this.setState({messageFilterSale: "Ne postoji trazena sala u klinici"})
+      else {
+        let pom = [];
+        this.setState({dobavljeneSale: []}) ;
+        for(let i =0; i<response.data.length; i++){
+              pom.push(response.data[i]);
+        }
+          this.setState({dobavljeneSale:pom}) ;
+          this.setState({messageFilterSale:"", showFiltriranjeSala:false})
+          }
+     
+        },(error)=>{
+          console.log(error);
+        });
+        */
   }
  
   cancelSearchDoctor = () => {
@@ -444,7 +468,7 @@ cijenaTipaValidacija(e) {
     let AuthStr = 'Bearer '.concat(token);
     axios({
       method: 'get',
-      url:url + 'getAllDoctors',
+      url: 'http://localhost:8099/getAllDoctors',
       headers: { "Authorization": AuthStr }  
     }).then((response) => {
       console.log(response);
@@ -506,7 +530,7 @@ cijenaTipaValidacija(e) {
    
         axios({
           method: 'post',
-          url: url + 'checkUpType/addType',
+          url: 'http://localhost:8099/checkUpType/addType',
           data: data,
           headers: { "Authorization": AuthStr }  
         }).then((response) => {
@@ -514,7 +538,7 @@ cijenaTipaValidacija(e) {
           console.log(response);
           axios({
             method: 'get',
-            url: url + 'clinic/getAllTypes',
+            url: 'http://localhost:8099/clinic/getAllTypes',
             headers: { "Authorization": AuthStr }  
           }).then((response) => {
             console.log(response);
@@ -541,7 +565,7 @@ cijenaTipaValidacija(e) {
  
     axios({
       method: 'get',
-      url: url + 'checkup/getCheckups/'+roomId,
+      url: 'http://localhost:8099/checkup/getCheckups/'+roomId,
       headers: { "Authorization": AuthStr },
     }).then((response)=>{             
       let checkups = response.data;
@@ -612,7 +636,7 @@ cijenaTipaValidacija(e) {
  
       axios({
         method: 'post',
-        url: url + 'changePassword',
+        url: 'http://localhost:8099/changePassword',
         data: data,
         headers: { "Authorization": AuthStr } ,
         ContentType: 'application/json'
@@ -674,14 +698,14 @@ cijenaTipaValidacija(e) {
    
     axios({
       method: 'post',
-      url:url + 'checkUpType/deleteType/' + name,
+      url: 'http://localhost:8099/checkUpType/deleteType/' + name,
       headers: { "Authorization": AuthStr }
     }).then((response) => {
       console.log(response);
       NotificationManager.success('Uspjesno brisanje tipa!', 'Uspjesno!', 3000);
       axios({
         method: 'get',
-        url:url + 'clinic/getAllTypes',
+        url: 'http://localhost:8099/clinic/getAllTypes',
         headers: { "Authorization": AuthStr }  
       }).then((response) => {
         console.log(response);
@@ -760,7 +784,7 @@ cijenaTipaValidacija(e) {
  
       axios({
         method: 'post',
-        url: url + 'clinic/searchRooms' ,
+        url: 'http://localhost:8099/clinic/searchRooms' ,
         headers: { "Authorization": AuthStr } ,
         data:pom,
         ContentType: 'application/json',
@@ -790,7 +814,7 @@ cijenaTipaValidacija(e) {
  
     axios({
       method: 'post',
-      url: url + 'clinic/deleteRoom/' + broj,
+      url: 'http://localhost:8099/clinic/deleteRoom/' + broj,
       headers: { "Authorization": AuthStr },
  
     }).then((response) => {
@@ -799,7 +823,7 @@ cijenaTipaValidacija(e) {
         NotificationManager.success('Uspjesno brisanje sobe!', 'Uspjesno!', 3000);
         axios({
           method: 'get',
-          url:url + 'clinic/getRooms',
+          url: 'http://localhost:8099/clinic/getRooms',
           headers: { "Authorization": AuthStr }  
         }).then((response) => {
           console.log(response);
@@ -831,7 +855,7 @@ cijenaTipaValidacija(e) {
  
     axios({
       method: 'post',
-      url:url + 'deleteDoctor',
+      url: 'http://localhost:8099/deleteDoctor',
       headers: { "Authorization": AuthStr },
       data:pom,
       ContentType: 'application/json',
@@ -842,7 +866,7 @@ cijenaTipaValidacija(e) {
       let AuthStr1 = 'Bearer '.concat(token1);
       axios({
         method: 'get',
-        url: url + 'getAllDoctors',
+        url: 'http://localhost:8099/getAllDoctors',
         headers: { "Authorization": AuthStr1 }  
       }).then((response) => {
         console.log(response);
@@ -901,18 +925,18 @@ cijenaTipaValidacija(e) {
     if(ok){
       axios({
         method: 'post',
-        url: url + 'clinic/changeNameOfType',
+        url: 'http://localhost:8099/clinic/changeNameOfType',
         headers: { "Authorization": AuthStr },
         data:params,
         ContentType: 'application/json',
       }).then((response) => {
         this.setState({poslijePoruka:"Nije moguce izmijeniti tip. (Postoji vec ili ima zakazan pregled tog tipa)"})
-        NotificationManager.success('Uspjesna izmjena', '', 3000);
+        NotificationManager.error('Izmjena nije moguca', 'Greska!', 3000);
         this.setState({pomocna:"",prije:"",poslijePoruka:"", prijeCijena:"",showEditType:false})
         console.log(response);
         axios({
           method: 'get',
-          url:url + 'clinic/getAllTypes',
+          url: 'http://localhost:8099/clinic/getAllTypes',
           headers: { "Authorization": AuthStr }  
         }).then((response) => {
           console.log(response);
@@ -924,8 +948,6 @@ cijenaTipaValidacija(e) {
         console.log(error);
         if(error.status === "ALREADY_REPORTED"){
           this.setState({pomocna:"",prije:"",poslijePoruka:"", prijeCijena:"", showEditType:false})
-          NotificationManager.error('Nije moguca promjena tipa', 'Greska', 3000);
-
          
         }
       });
@@ -933,115 +955,100 @@ cijenaTipaValidacija(e) {
   }
  
   componentDidMount() {
+    this.setState({showProfile:false});
     let token = localStorage.getItem("ulogovan");
     let AuthStr = 'Bearer '.concat(token);
+    var today = new Date();
+    let ddatum = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+    this.setState({datum:ddatum, date:ddatum, datumRez:ddatum})
     axios({
       method: 'get' ,    
-      url: url + 'log/getUser' ,           
-      headers: { "Authorization": AuthStr }   
+      url: 'http://localhost:8099/getUser' ,          
+      headers: { "Authorization": AuthStr }  
       }).then((response) => {
-        if(response.data.type !== 'ADMINISTRATOR' && response.data.type !== 'CCADMIN'){
-          this.props.history.push('/login');
+        if (response.data != null)
+        {
+          this.setState({korisnik : response.data.type});
+          if(response.data.type === 'CCADMIN'){
+            this.setState({workerType:"ADMINISTRATOR", name:response.data.name, surname:response.data.surname, email:response.data.email});
+         
+            axios({
+              method: 'get',
+              url: 'http://localhost:8099/clinic/getClinics',
+            }).then((response) => {
+              console.log(response);
+              this.setState({clinics:response.data})
+              if(response.data.length > 0){
+                this.setState({selectedClinic:response.data[0].name})
+              }
+            }, (error) => {
+              console.log(error);
+            });
+          }
         }
-        if (response.data.type === 'ADMINISTRATOR' || response.data.type === 'CCADMIN'){
-
-              this.setState({showProfile:false});
-              var today = new Date();
-              let ddatum = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
-              this.setState({datum:ddatum, date:ddatum, datumRez:ddatum})
-              axios({
-                method: 'get' ,    
-                url: url + 'log/getUser' ,          
-                headers: { "Authorization": AuthStr }  
-                }).then((response) => {
-                  if (response.data != null)
-                  {
-                    this.setState({korisnik : response.data.type});
-                    if(response.data.type === 'CCADMIN'){
-                      this.setState({workerType:"ADMINISTRATOR", name:response.data.name, surname:response.data.surname, email:response.data.email});
-                  
-                      axios({
-                        method: 'get',
-                        url: url + 'clinic/getClinics',
-                      }).then((response) => {
-                        console.log(response);
-                        this.setState({clinics:response.data})
-                        if(response.data.length > 0){
-                          this.setState({selectedClinic:response.data[0].name})
-                        }
-                      }, (error) => {
-                        console.log(error);
-                      });
-                    }
-                  }
-                  else{
-                    this.setState({korisnik : ""});
-                  }
-                }, (error) => {
-              }); 
-          
-              axios({
-                method: 'get',
-                url: url + 'clinic/getAllTypes',
-                headers: { "Authorization": AuthStr }  
-              }).then((response) => {
-                console.log(response);
-                  this.setState({allTypes:response.data})
-                  this.setState({typesSearch:response.data})
-                  if(this.state.allTypes.length > 0){
-                    this.setState({tipTrenutni:response.data[0].name, })
-                  }
-              }, (error) => {
-                console.log(error);
-              });
-          
-              axios({
-                method: 'get',
-                url: url + 'clinic/getClinic',
-                headers: { "Authorization": AuthStr }  
-              }).then((response) => {
-                console.log(response);
-                  this.setState({clicniCitava: response.data});
-                  this.setState({clinic:response.data.name})
-              }, (error) => {
-                //console.log(error);
-              });  
-            
-            
-              axios({
-                method: 'get',
-                url: url + 'clinic/getRooms',
-                headers: { "Authorization": AuthStr }  
-              }).then((response) => {
-                console.log(response);
-                const items = response.data.filter(room => room.typeRoom === 'PREGLED');
-                  this.setState({allRooms:items, dobavljeneSale:response.data})
-                  if(this.state.allRooms.length > 0){
-                    this.setState({salaTrenutna:items[0].number})
-                  }
-              }, (error) => {
-                console.log(error);
-              });
-            
-              axios({
-                method: 'get',
-                url: url + 'getAdministrator',
-                headers: { "Authorization": AuthStr }
-              }).then((response) => {
-                console.log(response);
-                this.setujAdmina(response);
-              }, (error) => {
-                console.log(error);
-              });
-    }
-  else{
-    //this.props.history.push('/login');
+        else{
+          this.setState({korisnik : ""});
+        }
+      }, (error) => {
+    });
+ 
+   
+ 
+    axios({
+      method: 'get',
+      url: 'http://localhost:8099/clinic/getAllTypes',
+      headers: { "Authorization": AuthStr }  
+    }).then((response) => {
+      console.log(response);
+        this.setState({allTypes:response.data})
+        this.setState({typesSearch:response.data})
+        if(this.state.allTypes.length > 0){
+          this.setState({tipTrenutni:response.data[0].name, })
+        }
+    }, (error) => {
+      console.log(error);
+    });
+ 
+    axios({
+      method: 'get',
+      url: 'http://localhost:8099/clinic/getClinic',
+      headers: { "Authorization": AuthStr }  
+    }).then((response) => {
+      console.log(response);
+        this.setState({clicniCitava: response.data});
+        this.setState({clinic:response.data.name})
+    }, (error) => {
+      //console.log(error);
+    });  
+   
+   
+    axios({
+      method: 'get',
+      url: 'http://localhost:8099/clinic/getRooms',
+      headers: { "Authorization": AuthStr }  
+    }).then((response) => {
+      console.log(response);
+      const items = response.data.filter(room => room.typeRoom === 'PREGLED');
+        this.setState({allRooms:items, dobavljeneSale:response.data})
+        if(this.state.allRooms.length > 0){
+          this.setState({salaTrenutna:items[0].number})
+        }
+    }, (error) => {
+      console.log(error);
+    });
+   
+    axios({
+      method: 'get',
+      url: 'http://localhost:8099/getAdministrator',
+      headers: { "Authorization": AuthStr }
+    }).then((response) => {
+      console.log(response);
+      this.setujAdmina(response);
+    }, (error) => {
+      console.log(error);
+    });
   }
-}, (error) => {
-  this.props.history.push('/login');
-});
-  }
-  
+ 
   handleOptionChange(changeEvent) {
     this.setState({
       workerType: changeEvent.target.value
@@ -1049,7 +1056,7 @@ cijenaTipaValidacija(e) {
     if(changeEvent.target.value === 'MEDICINAR' || changeEvent.target.value === 'ADMINISTRATOR'){
       axios({
         method: 'get',
-        url: url + 'clinic/getClinics',
+        url: 'http://localhost:8099/clinic/getClinics',
       }).then((response) => {
         console.log(response);
         this.setState({clinics:response.data})
@@ -1111,7 +1118,7 @@ cijenaTipaValidacija(e) {
  
       axios({
         method: 'post',
-        url:url + 'updateAdministrator',
+        url: 'http://localhost:8099/updateAdministrator',
         data: data,
         headers: { "Authorization": AuthStr } ,
         ContentType: 'application/json'
@@ -1282,8 +1289,8 @@ cijenaTipaValidacija(e) {
   workerStartHrValidation(e) {
     this.setState({ workerStartHr: e.target.value })
     let startHr = e.target.value
-    if (startHr < 7 || startHr > 19)
-      this.setState({ workerStartHrVal: "Radno vrijeme mora biti izmedju 7 i 20" })
+    if (startHr < 0 || startHr > 24)
+      this.setState({ workerStartHrVal: "Radno vrijeme mora biti izmedju 00 i 24" })
     else
       this.setState({ workerStartHrVal: "" })
   }
@@ -1291,8 +1298,8 @@ cijenaTipaValidacija(e) {
   workerEndHrValidation(e) {
     this.setState({ workerEndHr: e.target.value })
     let endHr = e.target.value
-    if (endHr < 8 || endHr > 20)
-      this.setState({ workerEndHrVal: "Radno vrijeme mora biti izmedju 7 i 20" })
+    if (endHr < 0 || endHr > 24)
+      this.setState({ workerEndHrVal: "Radno vrijeme mora biti izmedju 00 i 24" })
     else
       this.setState({ workerEndHrVal: "" })
   }
@@ -1313,6 +1320,31 @@ cijenaTipaValidacija(e) {
     else{
       this.setState({doktor:""})
     }
+    /*
+    axios({
+      method: 'get',
+      url: 'http://localhost:8099/clinic/getDoctors',
+      headers: { "Authorization": AuthStr }  
+    }).then((response) => {
+      console.log(response);
+       // this.setState({allDoctors:response.data})
+        let pom = [];
+        if(response.data.length > 0){
+          for(let i=0; i<response.data.length; i++){
+            if(response.data[i].type === this.state.tipTrenutni ){
+              pom.push(response.data[i]);
+            }
+          }
+          if(pom[0] != null){
+          this.setState({doktor:pom[0].user.email})
+            this.setState({allDoctors:pom})
+          }
+        }
+    }, (error) => {
+      console.log(error);
+    });
+    */
+ 
   }
   salaValidacija(e){
     this.setState({salaTrenutna:e.target.value});
@@ -1484,7 +1516,7 @@ cijenaTipaValidacija(e) {
         let AuthStr = 'Bearer '.concat(token);
         axios({
           method: 'post',
-          url: url + 'checkup/addAppointment',
+          url: 'http://localhost:8099/checkup/addAppointment',
           data: data,
           headers: { "Authorization": AuthStr }  
         }).then((response) => {
@@ -1528,7 +1560,7 @@ cijenaTipaValidacija(e) {
 
       axios({
         method: 'post',
-        url:url + 'clinic/searchOneType/' + parametar ,
+        url: 'http://localhost:8099/clinic/searchOneType/' + parametar ,
         headers: { "Authorization": AuthStr } ,
         ContentType: 'application/json',
       }).then((response)=>{      
@@ -1595,7 +1627,7 @@ let AuthStr = 'Bearer '.concat(localStorage.getItem("ulogovan"));
  
     axios({
       method: 'post',
-      url: url + 'findDoctors',
+      url: 'http://localhost:8099/findDoctors',
       headers: { "Authorization": AuthStr } ,
       data: params,
       ContentType: 'application/json',
@@ -1695,13 +1727,13 @@ let AuthStr = 'Bearer '.concat(localStorage.getItem("ulogovan"));
         "phone": this.state.workerPhone,
         "startHr": this.state.workerStartHr,
         "endHr": this.state.workerEndHr,
-        "type" : this.state.doctorType,
+        "type" : this.state.doctorType.name,
         "clinic" : this.state.clicniCitava,
         }
  
         axios({
           method: 'post',
-          url: url + 'addMedicalWorker',
+          url: 'http://localhost:8099/addMedicalWorker',
           data: data,
           ContentType: 'application/json'
         }).then((response) => {
@@ -1714,7 +1746,7 @@ let AuthStr = 'Bearer '.concat(localStorage.getItem("ulogovan"));
                         let AuthStr = 'Bearer '.concat(token);
                         axios({
                           method: 'get',
-                          url: url + 'getAllDoctors',
+                          url: 'http://localhost:8099/getAllDoctors',
                           headers: { "Authorization": AuthStr }  
                         }).then((response) => {
                           console.log(response);
@@ -1740,7 +1772,7 @@ let AuthStr = 'Bearer '.concat(localStorage.getItem("ulogovan"));
         }
           axios({
             method: 'post',
-            url:url + 'addAdmin',
+            url: 'http://localhost:8099/addAdmin',
             data: data,
             ContentType: 'application/json'
           }).then((response) => {
@@ -1786,7 +1818,7 @@ let AuthStr = 'Bearer '.concat(localStorage.getItem("ulogovan"));
     let AuthStr = 'Bearer '.concat(token);
     axios({
       method: 'get',
-      url: url + 'clinic/getAllTypes',
+      url: 'http://localhost:8099/clinic/getAllTypes',
       headers: { "Authorization": AuthStr }  
     }).then((response) => {
       console.log(response);
@@ -1802,7 +1834,7 @@ let AuthStr = 'Bearer '.concat(localStorage.getItem("ulogovan"));
     
     axios({
       method: 'get',
-      url: url + 'getAllDoctors',
+      url: 'http://localhost:8099/getAllDoctors',
       headers: { "Authorization": AuthStr }  
     }).then((response) => {
       console.log(response);
@@ -1821,15 +1853,15 @@ let AuthStr = 'Bearer '.concat(localStorage.getItem("ulogovan"));
     if(this.state.korisnik === 'ADMINISTRATOR'){
       axios({
         method: 'get',
-        url: url + 'checkUpType/allTypes',
+        url: 'http://localhost:8099/checkUpType/allTypes',
       }).then((response) => {
         console.log(response);
         this.setState({types: response.data});
         if(response.data.length > 0){
-          this.setState({doctorType:response.data[0].name});
+          this.setState({doctorType:response.data[0]});
           axios({
             method: 'get',
-            url: url + 'clinic/getClinicsByType/' + response.data[0].name,
+            url: 'http://localhost:8099/clinic/getClinicsByType/' + response.data[0].name,
           }).then((response) => {
             console.log(response);
             this.setState({clinics:response.data, selectedClinic:response.data[0].name})
@@ -1848,7 +1880,7 @@ let AuthStr = 'Bearer '.concat(localStorage.getItem("ulogovan"));
     this.setState({doctorType: e.target.value});  
     axios({
       method: 'get',
-      url: url + 'clinic/getClinicsByType/' + e.target.value,
+      url: 'http://localhost:8099/clinic/getClinicsByType/' + e.target.value,
     }).then((response) => {
       console.log(response);
       this.setState({clinics:response.data, selectedClinic:response.data[0].name})
@@ -1859,11 +1891,11 @@ let AuthStr = 'Bearer '.concat(localStorage.getItem("ulogovan"));
   logoutUser = () => {  
     localStorage.removeItem('ulogovan')
     localStorage.removeItem('role')
-    this.props.history.push('/login');
+    this.props.history.push('/register-page');
   }
  
   redirect = () => {
-    this.props.history.push('/login');
+    this.props.history.push('/register-page');
   }
  
   showDoktori = (e) =>{
@@ -1872,7 +1904,7 @@ let AuthStr = 'Bearer '.concat(localStorage.getItem("ulogovan"));
     let AuthStr = 'Bearer '.concat(token);
     axios({
       method: 'get',
-      url: url + 'getAllDoctors',
+      url: 'http://localhost:8099/getAllDoctors',
       headers: { "Authorization": AuthStr }  
     }).then((response) => {
       console.log(response);
@@ -1883,7 +1915,7 @@ let AuthStr = 'Bearer '.concat(localStorage.getItem("ulogovan"));
  
     axios({
       method: 'get',
-      url:url + 'clinic/getAllTypes',
+      url: 'http://localhost:8099/clinic/getAllTypes',
       headers: { "Authorization": AuthStr }  
     }).then((response) => {
       console.log(response);
@@ -1905,7 +1937,6 @@ let AuthStr = 'Bearer '.concat(localStorage.getItem("ulogovan"));
                         doktoriShow = {() => this.showDoktori()}
                         showProfileEvent={() => this.setState({showProfile: false, showTypeSearchForm:true, saleModal: true, showDoctorsForm:true})}
                         showNewAppointment={() => this.noviPregled()}
-                        hideTypeAdmin = {false}
                         showNewWorker={() => this.getAllCheckupTypes()}
                         showViewAndEditPage={()=> this.showClinicPage()}
                         showCodebook={()=> this.showCodebook()}
@@ -1915,7 +1946,7 @@ let AuthStr = 'Bearer '.concat(localStorage.getItem("ulogovan"));
                         hideClinicInfoAdmin = {false}
                         hideRegisterEvent = {true}
                         hideReceipts = {true}
-                        
+                        hideTypeAdmin = {true}
                         hideCodebookAdmin = {false}
                         hideKalendar={true}
                         hidePregledi = {true}
@@ -1927,6 +1958,7 @@ let AuthStr = 'Bearer '.concat(localStorage.getItem("ulogovan"));
                         sakrij = {true}
                         hideAllQuicksEvent = {true}                      
                         hideKarton = {true}
+                        hidePregledi = {true}
                         showClinicPage = {() => this.showAddNewClinic() }
                         />
         <ProfilePageHeader />
