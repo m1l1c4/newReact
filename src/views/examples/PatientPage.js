@@ -13,23 +13,21 @@ import React , {Component} from "react";
 import axios from 'axios';
 import "assets/css/bootstrap.min.css";
 // reactstrap components
-import { Button, Form, FormGroup, Input, Container, Row, Col, Modal, FormText } from "reactstrap";
+import { Button, Alert, Form, FormGroup, Input, Container, Row, Col, Modal, FormText } from "reactstrap";
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
 import StarRatings from 'react-star-ratings';
 import Popover from 'react-bootstrap/Popover'
 import { withRouter } from "react-router-dom";
 // core components
 import ExamplesNavbar from "components/Navbars/ExamplesNavbar.js";
+import RegisterModal from "components/RegisterModal";
 import ProfilePageHeader from 'components/Headers/ProfilePageHeader.js';
 
 
 import {NotificationContainer, NotificationManager} from 'react-notifications';
 import "../../../node_modules/react-notifications/lib/notifications.css"
 import "../../../node_modules/react-notifications/lib/Notifications.js"
-
-const url = 'https://clinical-center-tim31.herokuapp.com/'
-//const url = 'http://localhost:8099/'
-
+const url = 'https://clinical-center-tim31.herokuapp.com/';
 class PatientPage extends Component {
   constructor(props)
   {
@@ -124,7 +122,6 @@ class PatientPage extends Component {
       sort4: true,
       hideOperacije: true,
       canAccessToMedicalRecord: false,
-      labelHide:true,
       selectedReport: {checkUp:{
         medicalWorker:{
           user:{
@@ -171,7 +168,8 @@ class PatientPage extends Component {
     this.getUlogovani();
     let role = localStorage.getItem('role');
     this.getProfile();
-    if (role === "PACIJENT"){
+    if (role === 'PACIJENT'){
+      
       this.setState({canAccessToMedicalRecord:true})      
     }
     if (role === 'DOKTOR'){
@@ -192,7 +190,7 @@ class PatientPage extends Component {
     let AuthStr = 'Bearer '.concat(token);
     axios({
       method: 'get' ,    
-      url: url + 'log/getUser' ,           
+      url: url + 'getUser' ,           
       headers: { "Authorization": AuthStr }   
     }).then((response) => {
       if (response.data != null)
@@ -258,11 +256,11 @@ pristupiPacijentu(){
 
     axios({
       method: 'post',
-      url: url + 'clinic/rateClinic'  ,
+      url: url + 'rateClinic'  ,
       headers: { "Authorization": AuthStr }  ,
       data: params
     }).then((response)=>{       
-      if (response.status === 200) {
+      if (response.status == 200) {
         NotificationManager.info('Klinika je uspešno ocenjena', 'Info!', 3000);
         this.setState({ratingCl: rating})
       }      
@@ -287,16 +285,16 @@ pristupiPacijentu(){
    clinicFilter = () => {
     let parametar = this.state.filterOcena
     let klinike = this.state.clinics
-    if (parametar === "")
+    if (parametar == "")
       alert("polje za filtriranje je prazno")
     else {
 
       axios({
         method: 'post',
-        url: url + 'clinic/filterClinic/' + parametar ,
+        url: url + 'filterClinic/' + parametar ,
         data: klinike
       }).then((response)=>{       
-        this.setState({clinics: response.data, labelHide: false}) ;
+        this.setState({clinics: response.data}) ;
         
       },(error)=>{
         console.log(error);
@@ -316,10 +314,10 @@ pristupiPacijentu(){
 
     axios({
       method: 'post',
-      url: url + 'clinic/clinicDoctors' ,
+      url: url + 'clinicDoctors' ,
       data: parametri     
     }).then((response)=>{       
-      this.setState({hideDokore: false, labelHide:true, hideKlinike: true ,doctors: response.data, hiddenForm: true, hideDocSearch: false, hideFilter: true}) ;
+      this.setState({hideDokore: false, hideKlinike: true ,doctors: response.data, hiddenForm: true, hideDocSearch: false, hideFilter: true}) ;
       
     },(error)=>{
       console.log(error);
@@ -327,7 +325,7 @@ pristupiPacijentu(){
   }
 
   cancelSearch = () => {
-    this.setState({hiddenForm: false, hideFilter: true, pretragaHappened: false, labelHide:true})
+    this.setState({hiddenForm: false, hideFilter: true, pretragaHappened: false})
     this.getAllClinics();
   }
 
@@ -362,7 +360,7 @@ pristupiPacijentu(){
 
     axios({
       method: 'post',
-      url: url + 'clinic/searchClinic' ,
+      url: url + 'searchClinic' ,
       data: parametri
     }).then((response)=>{       
       this.setState({clinics: response.data, hideFilter: false, pretragaHappened: true}) ;
@@ -435,11 +433,11 @@ pristupiPacijentu(){
         headers: { "Authorization": AuthStr }  ,
         data: checkup     
       }).then((response)=>{ 
-        if (response.status === 200) {
-          this.setState({message: "Uspešno ste poslali zahtev za zakazivanje pregleda", showAppointment: false, labelHide:false})
+        if (response.status == '200') {
+          this.setState({message: "Uspešno ste poslali zahtev za zakazivanje pregleda", showAppointment: false})
           NotificationManager.success('Uspešno ste poslali zahtev za zakazivanje pregleda!', 'Uspjesno!', 3000);
         } else {
-          NotificationManager.info('Ne mozete poslati zahtjev za pregled!', 'Info!', 3000);
+          NotificationManager.info('Ne mozete posleti zahtjev za rigistraciju!', 'Info!', 3000);
 
          // alert('NE MOZE DA ZAKAZE')
         }
@@ -472,9 +470,9 @@ pristupiPacijentu(){
    }
 
   validateEmptyFields = () => {     
-      if (this.state.name === "" || this.state.surname === "" || this.state.email === "" || this.state.jbo === "" || this.state.phone === "" || this.state.adress === "" || this.state.city === "" || this.state.statee === "" )
+      if (this.state.name == "" || this.state.surname == "" || this.state.email == "" || this.state.jbo == "" || this.state.phone == "" || this.state.adress == "" || this.state.city == "" || this.state.statee == "" )
       {
-        this.setState({notFilledError:true});
+          this.state.notFilledError = true;
       }
   }
 
@@ -487,7 +485,7 @@ pristupiPacijentu(){
       url: url + 'clinic/getClinics'      
     }).then((response)=>{    
       this.getAllCheckupTypes();   
-      this.setState({clinics: response.data, chooseTip: true, hideOperacije: true, hideDocSearch:  true,
+      this.setState({clinics: response.data, chooseTip: true, hideOperacije: true,
       hideDokore: true, tableHistory: true, hideKlinike: false, hiddenForm: false, showKarton: true, showProfile: true})
     },(error)=>{
       console.log(error);
@@ -495,7 +493,7 @@ pristupiPacijentu(){
   }
 
   handleMatching = (event) => {
-    if (this.state.password1 !== event.target.value)
+    if (this.state.password1 != event.target.value)
       {
         this.setState({formValid: true, passErrorText: "Lozinke se ne poklapaju."});    // disabling submit button
       } else {
@@ -556,7 +554,7 @@ pristupiPacijentu(){
             data: data ,
             ContentType: 'application/json'            
           }).then((response) => {
-            if (response.status === 200)
+            if (response.status == 200)
               {
                 if (response.data != null)
                 NotificationManager.success('Uspešno ste izmjenili podatke!', 'Uspjesno!', 3000);
@@ -601,6 +599,7 @@ pristupiPacijentu(){
       url: url + 'getMedicalRecord/' + id,
       headers: { "Authorization": AuthStr }
     }).then((response)=>{      
+      let patient = response.data.patient; 
       this.setState({mrHeight: response.data.height , mrWeight: response.data.weight, 
         mrBloodType: response.data.bloodType, mrDiopt: response.data.diopter, diagnoses: response.data.diagnoses,
         mrId: response.data.id, hideDokore: true, tableHistory: true, showKarton: false, hiddenForm: true, hideKlinike: true, hideDoctors: true, showProfile: true, chooseTip: true, hideOperacije: true
@@ -713,11 +712,11 @@ sortByCity(){
   if(this.state.sort2){
     temp.sort(function(a,b){let ime1 = a.city; let ime2 = b.city; return ime2.localeCompare(ime1)})
   }
-else{
+  else{
   temp.sort(function(a,b){let ime1 = a.city; let ime2 = b.city; return ime1.localeCompare(ime2)})
-}
+  }
   this.setState({clinics:temp,sort2: !this.state.sort2})
-}
+  }
 
 
 
@@ -818,7 +817,7 @@ if (ok) {
             console.log(error);
            // alert("Greska prilikom dodavanja recepata");
            NotificationManager.error('Greska prilikom dodavanja recepata', 'Greska!', 3000);
-          this.setState({checkupStarted:false})
+
         });
 
     }, (error) => {
@@ -936,17 +935,6 @@ handleOptionChange(changeEvent) {
   }
 };
 
-  sortByNaziv(value){
-    let temp = this.state.clinics;
-    if(this.state.sort3){
-      temp.sort(function(a,b){let ime1 = a.name; let ime2 = b.name; return ime2.localeCompare(ime1)})
-    }
-  else{
-    temp.sort(function(a,b){let ime1 = a.name; let ime2 = b.name; return ime1.localeCompare(ime2)})
-  }
-    this.setState({clinics:temp,sort3: !this.state.sort3})
-  }
-
 dateValidation(e){
     
   let ddatum = e.target.value;
@@ -1033,7 +1021,7 @@ checkupInfo = id => {
     url: url + 'checkup/infoReport/' + id ,
     headers: { "Authorization": AuthStr } ,     
   }).then((response)=>{ 
-    if (response.status === 200)
+    if (response.status == 200)
       this.setState({infoDijagnoza: response.data.report.diagnose , infoInfo: response.data.report.informations
         , showProfile: true, chooseTip: true, infoRecepti: response.data.code.name , showDetailsCheckup: true ,
       sala: response.data.report.checkUp.room.name + ' ' + response.data.report.checkUp.room.number,selectedReport:response.data.report})
@@ -1048,9 +1036,8 @@ render() {
   return (
   <div>
    <ExamplesNavbar showProfileEvent={() => this.setState({hideDokore: true, showProfile: false, hiddenForm: true, hideKlinike: true, tableHistory: true, showKarton: true, chooseTip: true, hideOperacije: true})} 
-                    logoutEvent = {this.logoutUser}
-                    hideLoginEvent={true} 
-                    hideRegisterEvent={true} 
+                    hideLoginEvent={true} hideRegisterEvent={true} 
+                    hideLoginEvent = {true}                     
                     hideNewWorker = {true}
                     hideQuickEvent = {true}
                     hideRecipes = {true}
@@ -1195,7 +1182,7 @@ render() {
               <Input  name="password11"  value = {this.state.password11} onBlur={this.handleMatching} onChange={event => this.setState({password11: event.target.value})}  type="password"  />
               <p style={{color:'red'}} > {this.state.passErrorText} </p>
             </FormGroup>
-      <Button block className="btn-round" color="info" disabled={this.state.password1 !== this.state.password11}>IZMENI</Button>
+      <Button block className="btn-round" color="info" disabled={this.state.password1 != this.state.password11}>IZMENI</Button>
       </Form>
 </div>
 </Modal>
@@ -1239,21 +1226,21 @@ render() {
       <div className="form-row">
         <FormGroup className="col-md-4">
           <label for="inputEmail4">Visina (cm):</label>
-          <Input type="text" disabled={role === 'PACIJENT' || this.state.enableMedRecChange === false} value={this.state.mrHeight} onChange={(event) => this.setState({mrHeight: event.target.value})}/>
+          <Input type="text" disabled={role == 'PACIJENT' || this.state.enableMedRecChange === false} value={this.state.mrHeight} onChange={(event) => this.setState({mrHeight: event.target.value})}/>
         </FormGroup>
         <FormGroup className="col-md-4">
           <label>Težina (kg):</label>
-          <Input type="text" disabled={role === 'PACIJENT' || this.state.enableMedRecChange === false} value={this.state.mrWeight} onChange={(event) => this.setState({mrWeight: event.target.value})}/>
+          <Input type="text" disabled={role == 'PACIJENT' || this.state.enableMedRecChange === false} value={this.state.mrWeight} onChange={(event) => this.setState({mrWeight: event.target.value})}/>
         </FormGroup>
       </div>
       <div className="form-row">
       <FormGroup className="col-md-4">
         <label>Krvna grupa:</label>
-        <Input type="text" disabled={role === 'PACIJENT' || this.state.enableMedRecChange === false} value={this.state.mrBloodType} onChange={(event) => this.setState({mrBloodType: event.target.value})}/>
+        <Input type="text" disabled={role == 'PACIJENT' || this.state.enableMedRecChange === false} value={this.state.mrBloodType} onChange={(event) => this.setState({mrBloodType: event.target.value})}/>
       </FormGroup>
       <FormGroup className="col-md-4">
         <label>Dioptrija:</label>
-        <Input type="text" disabled={role === 'PACIJENT' || this.state.enableMedRecChange === false} value={this.state.mrDiopt} onChange={(event) => this.setState({mrDiopt: event.target.value})}/>
+        <Input type="text" disabled={role == 'PACIJENT' || this.state.enableMedRecChange === false} value={this.state.mrDiopt} onChange={(event) => this.setState({mrDiopt: event.target.value})}/>
       </FormGroup>    
       <FormGroup className="col-md-4">
         <label>&nbsp;</label>
@@ -1269,7 +1256,7 @@ render() {
     <div className = "row" hidden = {!this.state.checkupExist}>
       <div  className="col-md-12">
         <div className="col-md-4" >
-          <Button block className="btn-round" color="info" onClick={(event) => this.startCheckup(event)} hidden={this.state.checkupStarted || this.state.showKarton}>
+          <Button block className="btn-round" color="info" onClick={(event) => this.startCheckup(event)} hidden={this.state.checkupStarted}>
             Započni pregled
           </Button>
         </div>
@@ -1372,6 +1359,11 @@ render() {
                               <option>3</option>
                               <option>4</option>
                               <option>5</option>
+                              <option>6</option>
+                              <option>7</option>
+                              <option>8</option>
+                              <option>9</option>
+                              <option>10</option>
                           </select>                            
                       </div>
                     </div>                                             
@@ -1440,7 +1432,6 @@ render() {
         </div>    
   </div>
   </section> 
-  <label id = "labelHide" hidden = {this.state.labelHide}>&nbsp;</label>
 
   <section className="bar pt-0" hidden={this.state.hideDokore}>
         <div className="row">
@@ -1448,7 +1439,7 @@ render() {
           <p className="text lead">Doktori izabranog kliničkog centra</p>
           <div className="box mt-0 mb-lg-0">
             <div className="table-responsive">
-              <table id = "tableDoctors" className="table table-hover">
+              <table className="table table-hover">
                 <thead>
                   <tr>
                     <th onClick={() => this.sortByNazivDoc()} className="text-primary font-weight-bold">Ime</th>
@@ -1475,7 +1466,7 @@ render() {
   </div>
   </section>  
 
-  <Modal id = "modal1" modalClassName="modal-register" isOpen={this.state.showTermin}>
+  <Modal  modalClassName="modal-register" isOpen={this.state.showTermin}>
 <div className="modal-header no-border-header text-center">
         <button
           aria-label="Close"
@@ -1502,7 +1493,7 @@ render() {
                   <div className="col-md-12">
                     <div className="form-group">
                       <label className="text-primary font-weight-bold">Termini</label>
-                      <select id = "timeOfCheckup"  value = {this.state.selectedTermin} onChange={(event) => this.setState({selectedTermin: event.target.value})} className="form-control" >
+                      <select value = {this.state.selectedTermin} onChange={(event) => this.setState({selectedTermin: event.target.value})} className="form-control" >
                           {this.state.selectedDoctor!=null && this.state.selectedDoctor.availableCheckups[this.state.pretragaDatum].map(item => (
                               <option key={item} data-key={item}>
                                   {item}
@@ -1512,7 +1503,7 @@ render() {
                     </div>
                   </div>
                   </div>        
-      <Button id="buttonFirstClick" block className="btn-round" color="info" onClick={event => this.setState({showAppointment: true, showTermin:false})}>Zakaži</Button>
+      <Button block className="btn-round" color="info" onClick={event => this.setState({showAppointment: true, showTermin:false})}>Zakaži</Button>
       </form>
 </div>
 </Modal> 
@@ -1565,7 +1556,7 @@ render() {
                       <label className="text-primary">Informacije:</label>
                           <Input type="textarea" value={this.state.infoInfo} disabled={role !== 'DOKTOR' || this.state.buttonText === 'Izmeni'} onChange={(e) => this.setState({infoInfo:e.target.value})}>{this.state.infoInfo}</Input>
                           <br></br>
-                          <Button hidden={this.state.ulogovani.id !== this.state.selectedReport.checkUp.medicalWorker.user.id} block className="btn-round" color="info" onClick={() => this.editReport()}>
+                          <Button hidden={this.state.ulogovani.id != this.state.selectedReport.checkUp.medicalWorker.user.id} block className="btn-round" color="info" onClick={() => this.editReport()}>
           {this.state.buttonText}
         </Button>       
                     </div>
@@ -1576,7 +1567,7 @@ render() {
 </div>
 </Modal> 
 
-<Modal id = "modal2"  modalClassName="modal-register" isOpen={this.state.showAppointment}>
+<Modal  modalClassName="modal-register" isOpen={this.state.showAppointment}>
 <div className="modal-header no-border-header text-center">
         <button
           aria-label="Close"
@@ -1639,7 +1630,7 @@ render() {
               </form>
             </div>
           </div> 
-      <Button id = "buttonSecondClick" block className="btn-round" color="info" onClick={this.medicalRequest}>POTVRDI</Button>
+      <Button block className="btn-round" color="info" onClick={this.medicalRequest}>POTVRDI</Button>
       </div>
 
 </Modal> 
@@ -1784,7 +1775,7 @@ render() {
                                             </Popover>
                                           }
                                         >
-                            <Button hidden={role !== 'PACIJENT'} color="info" ><i className="fa fa-star" /></Button>
+                            <Button color="info" ><i className="fa fa-star" /></Button>
                           </OverlayTrigger>
                         </span>
                       </td>
@@ -1811,7 +1802,7 @@ render() {
                                             </Popover>
                                           }
                                         >
-                            <Button color="info" hidden={role !== 'PACIJENT'} ><i className="fa fa-star" /></Button>
+                            <Button color="info" ><i className="fa fa-star" /></Button>
                           </OverlayTrigger>
                         </span>
                         </td>  
@@ -1913,7 +1904,7 @@ render() {
                                             </Popover>
                                           }
                                         >
-                            <Button color="info" hidden={role !== 'PACIJENT'} ><i className="fa fa-star" /></Button>
+                            <Button color="info" ><i className="fa fa-star" /></Button>
                           </OverlayTrigger>
                         </span>
                       </td>
@@ -1940,7 +1931,7 @@ render() {
                                             </Popover>
                                           }
                                         >
-                            <Button color="info" hidden={role !== 'PACIJENT'} ><i className="fa fa-star" /></Button>
+                            <Button color="info" ><i className="fa fa-star" /></Button>
                           </OverlayTrigger>
                         </span>
                         </td>  
